@@ -59,7 +59,7 @@ export class UserAuthGuard implements CanActivate {
         .findById(payload.sub)
         .select('status')
         .lean();
-      if (!user || user.status !== 'active') throw new Error('Inactive user');
+      if (!user || user.status === 'disabled') throw new Error('Inactive user');
       request.user = payload;
       return true;
     } catch {

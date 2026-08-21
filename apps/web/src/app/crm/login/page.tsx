@@ -19,7 +19,7 @@ export default function CrmLoginPage() {
     setError("");
     const data = new FormData(event.currentTarget);
     try {
-      await crmApi.login(String(data.get("username")), String(data.get("password")));
+      await crmApi.login(String(data.get("username")).trim(), String(data.get("password")));
       router.replace("/crm");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Sign in failed");
@@ -55,7 +55,7 @@ export default function CrmLoginPage() {
             </span>
             <div>
               <h2 className="text-xl font-bold">Sign in to CRM</h2>
-              <p className="mt-1 text-sm text-slate-500">Use your admin username and password.</p>
+            <p className="mt-1 text-sm text-slate-500">Admin username only. Users created in CRM sign in at the TaskFlow login page.</p>
             </div>
           </div>
 

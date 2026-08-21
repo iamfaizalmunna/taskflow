@@ -21,9 +21,13 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
     const data = new FormData(event.currentTarget);
     try {
       if (isLogin) {
-        await authApi.login(String(data.get("email")), String(data.get("password")));
+        await authApi.login(String(data.get("email")).trim(), String(data.get("password") ?? ""));
       } else {
-        await authApi.register(String(data.get("name")), String(data.get("email")), String(data.get("password")));
+        await authApi.register(
+          String(data.get("name") ?? "").trim(),
+          String(data.get("email") ?? "").trim(),
+          String(data.get("password") ?? ""),
+        );
       }
       router.replace("/tasks");
     } catch (err) {
@@ -50,7 +54,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
           <div className="mb-8">
             <div className="mb-4 grid size-11 place-items-center rounded-xl bg-indigo-50 text-indigo-600"><LockKeyhole size={21} /></div>
             <h2 className="text-3xl font-bold tracking-tight">{isLogin ? "Welcome back" : "Create your account"}</h2>
-            <p className="mt-2 text-slate-500">{isLogin ? "Sign in to continue to your workspace." : "Start organizing your work in minutes."}</p>
+            <p className="mt-2 text-slate-500">{isLogin ? "Use the account email, not the person’s name. CRM-created users sign in here." : "Start organizing your work in minutes."}</p>
           </div>
           <form onSubmit={submit} className="space-y-4">
             {!isLogin && <label className="block text-sm font-semibold text-slate-700">Full name<Input name="name" autoComplete="name" required className="mt-2" placeholder="Alex Morgan" /></label>}

@@ -18,6 +18,8 @@ export function CrmUsers() {
   const [query, setQuery] = useState("");
   const [modal, setModal] = useState(false);
   const [editing, setEditing] = useState<User | null>(null);
+  const [created, setCreated] = useState<{ email: string } | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     crmApi.users()
@@ -34,17 +36,21 @@ export function CrmUsers() {
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
+    const name = String(data.get("name") ?? "").trim();
+    const email = String(data.get("email") ?? "").trim();
+    const password = String(data.get("password") ?? "");
     try {
       const user = editing
-        ? await crmApi.updateUser(editing.id, { name: String(data.get("name")), email: String(data.get("email")) })
-        : await crmApi.createUser({
-            name: String(data.get("name")),
-            email: String(data.get("email")),
-            password: String(data.get("password")),
-          });
+        ? await crmApi.updateUser(editing.id, { name, email })
+        : await crmApi.createUser({ name, email, password });
       setUsers((items) => (editing ? items.map((item) => (item.id === user.id ? user : item)) : [user, ...items]));
       setModal(false);
-      toast(editing ? "User updated" : "User created");
+      setShowPassword(false);
+      if (editing) toast("User updated");
+      else {
+        setCreated({ email: user.email });
+        toast("User created. They must sign in at /login with this email.");
+      }
     } catch (error) {
       toast(error instanceof Error ? error.message : "Could not save user", "error");
     }
@@ -79,10 +85,21 @@ export function CrmUsers() {
           <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">Users</h1>
           <p className="mt-2 text-sm text-slate-500">Manage TaskFlow accounts and access.</p>
         </div>
-        <Button className="w-full sm:w-auto" onClick={() => { setEditing(null); setModal(true); }}>
+        <Button className="w-full sm:w-auto" onClick={() => { setEditing(null); setCreated(null); setShowPassword(false); setModal(true); }}>
           <Plus size={18} />Create user
         </Button>
       </div>
+
+      {created && (
+        <div className="mt-6 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-950">
+          <p className="font-semibold">Account ready</p>
+          <p className="mt-1">
+            Sign in on the user app with <strong>{created.email}</strong> and the temporary password you just set.
+            Open <a className="font-semibold underline" href="/login" target="_blank" rel="noreferrer">/login</a>
+            — not the CRM login.
+          </p>
+        </div>
+      )}
 
       <div className="mt-6 grid gap-3 sm:mt-8 sm:grid-cols-3">
         <Stat label="Total users" value={users.length} icon={<Users />} />
@@ -143,14 +160,22 @@ export function CrmUsers() {
         </div>
       </section>
 
-      <Dialog open={modal} onClose={() => setModal(false)} title={editing ? "Edit user" : "Create user"} description={editing ? "Update this account's details." : "Create a TaskFlow account. The user can change their password later."}>
-        <form onSubmit={save} className="space-y-4">
-          <label className="block text-sm font-semibold text-slate-700">Name<Input name="name" defaultValue={editing?.name} required className="mt-2" /></label>
-          <label className="block text-sm font-semibold text-slate-700">Email<Input name="email" type="email" defaultValue={editing?.email} required className="mt-2" /></label>
-          {!editing && <label className="block text-sm font-semibold text-slate-700">Temporary password<Input name="password" type="password" minLength={8} required className="mt-2" /></label>}
+      <Dialog open={modal} onClose={() => setModal(false)} title={editing ? "Edit user" : "Create user"} description={editing ? "Update this account's details." : "They sign in on the user app at /login with this email and temporary password. Do not use the CRM login."}>
+        <form onSubmit={save} autoComplete="off" className="space-y-4">
+          <label className="block text-sm font-semibold text-slate-700">Name<Input name="name" autoComplete="off" defaultValue={editing?.name} required className="mt-2" /></label>
+          <label className="block text-sm font-semibold text-slate-700">Email<Input name="email" type="email" autoComplete="off" defaultValue={editing?.email} required className="mt-2" /></label>
+          {!editing && (
+            <label className="block text-sm font-semibold text-slate-700">
+              Temporary password
+              <Input name="password" type={showPassword ? "text" : "password"} autoComplete="new-password" minLength={8} required className="mt-2" placeholder="At least 8 characters" />
+              <button type="button" className="mt-2 text-xs font-semibold text-indigo-600" onClick={() => setShowPassword((value) => !value)}>
+                {showPassword ? "Hide password" : "Show password"}
+              </button>
+            </label>
+          )}
           <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
             <Button type="button" variant="secondary" className="w-full sm:w-auto" onClick={() => setModal(false)}>Cancel</Button>
-            <Button className="w-full sm:w-auto">{editing ? "Save changes" : "Create user"}</Button>
+            <Button className="w-full sm:w-auto">{editing ? "Save changes" : "Save account"}</Button>
           </div>
         </form>
       </Dialog>

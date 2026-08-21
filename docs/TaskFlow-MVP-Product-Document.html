@@ -54,8 +54,8 @@
     <p class="cover-sub">A clean, manual task manager. Users register, log in, and organise their own tasks with priorities, due dates, reminders, groups, and drag-and-drop ordering. A separate CRM admin panel lets the team manage users.</p>
     <div class="meta-grid">
       <div><strong>Document type</strong>MVP / POC Product Requirements</div>
-      <div><strong>Version</strong>2.0 (supersedes v1.0)</div>
-      <div><strong>Status</strong>Final — scope locked</div>
+      <div><strong>Version</strong>2.1</div>
+      <div><strong>Status</strong>Implemented MVP</div>
       <div><strong>Date</strong>21 August 2026</div>
       <div><strong>Products</strong>TaskFlow App · TaskFlow CRM</div>
       <div><strong>Audience</strong>Founder / engineering</div>
@@ -85,10 +85,10 @@
   <thead><tr><th>Field</th><th>Value</th></tr></thead>
   <tbody>
     <tr><td>Document ID</td><td>TF-PRD-MVP-002</td></tr>
-    <tr><td>Version</td><td>2.0 — 21 Aug 2026 (replaces v1.0 entirely)</td></tr>
+    <tr><td>Version</td><td>2.1 — 21 Aug 2026 (v2.0 + implementation notes)</td></tr>
     <tr><td>Owner</td><td>Product (founder)</td></tr>
     <tr><td>Stack lock</td><td>Next.js App Router + Tailwind + shadcn/ui · NestJS · MongoDB / Mongoose · JWT in HttpOnly cookie</td></tr>
-    <tr><td>Repo shape</td><td>Turborepo: <code>apps/web</code> (app + CRM), <code>apps/api</code> (NestJS), <code>packages/ui</code></td></tr>
+    <tr><td>Repo shape</td><td>Turborepo: <code>apps/web</code> (app + CRM), <code>apps/api</code> (NestJS). UI kit lives in <code>apps/web/src/components/ui</code>.</td></tr>
     <tr><td>Change policy</td><td>Scope changes require a version bump before code follows</td></tr>
   </tbody>
 </table>
@@ -154,7 +154,7 @@
   <thead><tr><th>Feature</th><th>Behaviour</th></tr></thead>
   <tbody>
     <tr><td>Register</td><td>Name, email, password. Email must be unique. Password hashed with bcrypt.</td></tr>
-    <tr><td>Login / Logout</td><td>Email + password. JWT issued in an HttpOnly cookie. Logout clears it.</td></tr>
+    <tr><td>Login / Logout</td><td>Email + password. JWT in HttpOnly cookie <code>taskflow_token</code> (7 days). Logout clears it. CRM uses a separate cookie <code>taskflow_admin_token</code> (12 hours).</td></tr>
     <tr><td>Create task</td><td>Title (required), description, group, priority, due date, reminder.</td></tr>
     <tr><td>Edit task</td><td>All fields editable inline or in a dialog.</td></tr>
     <tr><td>Delete task</td><td>With a confirm step.</td></tr>
@@ -199,7 +199,7 @@
 │            │  Already have one? Log in  │                │
 │            └────────────────────────────┘                │
 └──────────────────────────────────────────────────────────┘</div>
-<p>On success the user is logged in and redirected to My Tasks. Password minimum 8 characters.</p>
+<p>On success the user is logged in and redirected to My Tasks. Password minimum 8 characters. There is no confirm-password field in the implemented UI.</p>
 
 <h3>7.3 My Tasks (main screen)</h3>
 <div class="wire">┌─────────────────┬──────────────────────────────────────────────────────┐
@@ -298,7 +298,7 @@
   <thead><tr><th>Capability</th><th>Detail</th></tr></thead>
   <tbody>
     <tr><td>List users</td><td>Search, sort, task counts, status, joined date</td></tr>
-    <tr><td>Create user</td><td>Admin manually creates an account (name, email, password) for testing or support</td></tr>
+    <tr><td>Create user</td><td>Admin creates name, email, and a temporary password (min 8 characters). That person signs in on the <strong>user app</strong> at <code>/login</code> with the email — never on <code>/crm/login</code>.</td></tr>
     <tr><td>Edit user</td><td>Change name, email, status</td></tr>
     <tr><td>Reset password</td><td>Set a new password for a user</td></tr>
     <tr><td>Disable / enable</td><td>A disabled user cannot log in; data is kept</td></tr>
@@ -320,7 +320,7 @@
     <tr><td>Demo user 3</td><td>riya@demo.test</td><td>Demo@12345</td><td>Empty account, to test empty states</td></tr>
   </tbody>
 </table>
-<p>Anyone can still register with their own email — the seeded accounts are simply there so testing does not require sign-up first. All accounts live only in our MongoDB; nothing is sent anywhere else.</p>
+<p>Anyone can still register with their own email. Accounts created in CRM are normal users: they sign in at <code>/login</code> with that email and temporary password. All accounts live only in our MongoDB.</p>
 
 <h2>10. Data model (MongoDB)</h2>
 <h3>10.1 User</h3>

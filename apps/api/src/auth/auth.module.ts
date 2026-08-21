@@ -63,9 +63,10 @@ class AuthService {
   async register(dto: RegisterDto) {
     try {
       const user = await this.users.create({
-        name: dto.name,
-        email: dto.email.toLowerCase(),
+        name: dto.name.trim(),
+        email: dto.email.toLowerCase().trim(),
         password: await bcrypt.hash(dto.password, 12),
+        status: 'active',
       });
       await this.activity.log(user._id, 'user', 'user.registered');
       return {
@@ -80,15 +81,17 @@ class AuthService {
   }
 
   async login(dto: LoginDto) {
-    const user = await this.users
-      .findOne({ email: dto.email.toLowerCase() })
-      .select('+password');
-    if (
-      !user ||
-      user.status !== 'active' ||
-      !(await bcrypt.compare(dto.password, user.password))
-    ) {
-      throw new UnauthorizedException('Invalid email or password');
+    const email = dto.email.toLowerCase().trim();
+    const password = dto.password;
+    const user = await this.users.findOne({ email }).select('+password');
+    if (!user) {
+      throw new UnauthorizedException('No account with that email');
+    }
+    if (user.status === 'disabled') {
+      throw new UnauthorizedException('This account is disabled');
+    }
+    if (!(await bcrypt.compare(password, user.password))) {
+      throw new UnauthorizedException('Wrong password. Use the email and temporary password from CRM, not the person’s name.');
     }
     user.lastLoginAt = new Date();
     await user.save();

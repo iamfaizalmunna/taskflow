@@ -104,8 +104,14 @@ class AdminService {
     private readonly activity: ActivityService,
   ) {}
   async login(dto: AdminLoginDto) {
+    const username = dto.username.trim().toLowerCase();
+    if (username.includes('@')) {
+      throw new UnauthorizedException(
+        'CRM is for admins only. Users sign in at /login with their email.',
+      );
+    }
     const admin = await this.admins
-      .findOne({ username: dto.username.toLowerCase() })
+      .findOne({ username })
       .select('+password');
     if (!admin || !(await bcrypt.compare(dto.password, admin.password))) {
       throw new UnauthorizedException('Invalid username or password');
@@ -165,9 +171,10 @@ class AdminService {
   async createUser(dto: CreateUserDto) {
     try {
       const user = await this.users.create({
-        ...dto,
-        email: dto.email.toLowerCase(),
-        password: await bcrypt.hash(dto.password, 12),
+        name: dto.name.trim(),
+        email: dto.email.toLowerCase().trim(),
+        password: await bcrypt.hash(dto.password.trim(), 12),
+        status: dto.status ?? 'active',
       });
       await this.activity.log(user._id, 'admin', 'admin.user_created');
       return serializeUser(user);
@@ -225,7 +232,7 @@ class AdminService {
   }
   async resetPassword(id: string, password: string, adminId: string) {
     const user = await this.users.findByIdAndUpdate(id, {
-      password: await bcrypt.hash(password, 12),
+      password: await bcrypt.hash(password.trim(), 12),
     });
     if (!user) throw new NotFoundException('User not found');
     await this.activity.log(id, 'admin', 'admin.password_reset', { adminId });
