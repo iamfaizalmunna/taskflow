@@ -8,6 +8,44 @@ Manual task manager with a separate admin CRM. No AI in the product.
 | CRM | http://localhost:3000/crm |
 | API | http://localhost:4000/api |
 
+### API endpoints
+
+All routes sit under `/api`. User routes need the `taskflow_token` cookie. CRM routes need `taskflow_admin_token`.
+
+**Auth**
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `POST /api/auth/logout`
+- `GET /api/auth/me`
+- `PATCH /api/auth/profile`
+
+**Tasks**
+- `GET /api/tasks`
+- `POST /api/tasks`
+- `GET /api/tasks/:id`
+- `PATCH /api/tasks/:id`
+- `DELETE /api/tasks/:id`
+- `PATCH /api/tasks/reorder`
+
+**Groups**
+- `GET /api/groups`
+- `POST /api/groups`
+- `GET /api/groups/:id`
+- `PATCH /api/groups/:id`
+- `DELETE /api/groups/:id`
+
+**CRM**
+- `POST /api/admin/login`
+- `POST /api/admin/logout`
+- `GET /api/admin/me`
+- `GET /api/admin/users`
+- `POST /api/admin/users`
+- `GET /api/admin/users/:id`
+- `PATCH /api/admin/users/:id`
+- `DELETE /api/admin/users/:id`
+- `POST /api/admin/users/:id/password`
+- `GET /api/admin/activity`
+
 Product spec: [docs/TaskFlow-MVP-Product-Document.pdf](docs/TaskFlow-MVP-Product-Document.pdf)
 
 ---
