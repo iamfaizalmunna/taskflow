@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>TaskFlow unit tests</title>
+  <style>
+    body { margin: 0; font-family: ui-sans-serif, system-ui, sans-serif; background: #0f172a; color: #e2e8f0; }
+    main { max-width: 880px; margin: 0 auto; padding: 48px 32px 64px; }
+    h1 { font-size: 32px; margin: 0 0 8px; }
+    p.sub { color: #94a3b8; margin: 0 0 32px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .card { background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 24px; }
+    .ok { color: #34d399; font-weight: 700; font-size: 28px; }
+    .label { color: #94a3b8; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; }
+    pre { background: #020617; border-radius: 12px; padding: 20px; overflow: auto; font-size: 13px; line-height: 1.55; color: #cbd5e1; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>TaskFlow unit tests</h1>
+    <p class="sub">Captured locally on 21 Aug 2026 · all suites green</p>
+    <div class="grid">
+      <div class="card"><div class="label">API · Jest</div><div class="ok">12 / 12 passed</div><p>3 test files · serialize, ids, health</p></div>
+      <div class="card"><div class="label">Web · Vitest</div><div class="ok">10 / 10 passed</div><p>3 test files · API client, Button, Badge</p></div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="label">Total</div>
+      <div class="ok">22 / 22 passed</div>
+      <p>No skipped tests. No failed tests.</p>
+    </div>
+    <pre style="margin-top:20px">=== API (Jest) ===
+Test Suites: 3 passed, 3 total
+Tests:       12 passed, 12 total
+
+=== WEB (Vitest) ===
+Test Files  3 passed (3)
+Tests       10 passed (10)</pre>
+  </main>
+</body>
+</html>

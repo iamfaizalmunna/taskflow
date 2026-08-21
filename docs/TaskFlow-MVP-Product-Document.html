@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>TaskFlow — MVP Product Document</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm 20mm 16mm; }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      color: #0f172a; font-size: 10.5pt; line-height: 1.45; background: #fff;
+    }
+    h1, h2, h3 { color: #0b1220; page-break-after: avoid; }
+    h1 { font-size: 26pt; letter-spacing: -0.03em; margin: 0 0 8px; }
+    h2 { font-size: 14pt; border-bottom: 2px solid #0f172a; padding-bottom: 6px; margin: 26px 0 12px; }
+    h3 { font-size: 11.5pt; margin: 18px 0 8px; }
+    p { margin: 0 0 8px; }
+    ul, ol { margin: 0 0 10px; padding-left: 18px; }
+    li { margin-bottom: 3px; }
+    table { width: 100%; border-collapse: collapse; margin: 8px 0 14px; font-size: 9.5pt; }
+    th, td { border: 1px solid #cbd5e1; padding: 6px 8px; vertical-align: top; text-align: left; }
+    th { background: #0f172a; color: #fff; font-weight: 600; }
+    tr:nth-child(even) td { background: #f8fafc; }
+    .cover {
+      page-break-after: always; min-height: 240mm;
+      display: flex; flex-direction: column; justify-content: space-between; padding: 12mm 4mm 8mm;
+    }
+    .eyebrow { font-size: 9pt; letter-spacing: 0.22em; text-transform: uppercase; color: #64748b; font-weight: 600; }
+    .cover-title { font-size: 36pt; line-height: 1.05; letter-spacing: -0.04em; margin: 16px 0 10px; }
+    .cover-sub { font-size: 13pt; color: #334155; max-width: 140mm; }
+    .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; margin-top: 28px; font-size: 10pt; }
+    .meta-grid strong { display: block; color: #64748b; font-size: 8pt; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 2px; }
+    .bar { height: 8px; background: #0f172a; width: 48px; margin: 18px 0; }
+    .confidential { border-top: 1px solid #e2e8f0; padding-top: 12px; font-size: 8.5pt; color: #64748b; }
+    .callout { border-left: 4px solid #0f172a; background: #f1f5f9; padding: 10px 12px; margin: 10px 0 14px; }
+    .wire {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 7.4pt; line-height: 1.22; background: #0f172a; color: #e2e8f0;
+      padding: 12px 14px; white-space: pre; margin: 8px 0 14px; page-break-inside: avoid;
+    }
+    .muted { color: #475569; }
+    code { font-family: ui-monospace, Menlo, Monaco, Consolas, monospace; font-size: 9pt; }
+    .small { font-size: 8.5pt; color: #64748b; }
+  </style>
+</head>
+<body>
+
+<section class="cover">
+  <div>
+    <div class="eyebrow">Internal product document · Confidential</div>
+    <div class="bar"></div>
+    <h1 class="cover-title">TaskFlow</h1>
+    <p class="cover-sub">A clean, manual task manager. Users register, log in, and organise their own tasks with priorities, due dates, reminders, groups, and drag-and-drop ordering. A separate CRM admin panel lets the team manage users.</p>
+    <div class="meta-grid">
+      <div><strong>Document type</strong>MVP / POC Product Requirements</div>
+      <div><strong>Version</strong>2.0 (supersedes v1.0)</div>
+      <div><strong>Status</strong>Final — scope locked</div>
+      <div><strong>Date</strong>21 August 2026</div>
+      <div><strong>Products</strong>TaskFlow App · TaskFlow CRM</div>
+      <div><strong>Audience</strong>Founder / engineering</div>
+      <div><strong>Stack</strong>Next.js + shadcn · NestJS · MongoDB · JWT</div>
+      <div><strong>Change from v1.0</strong>AI agent removed from product</div>
+    </div>
+  </div>
+  <div class="confidential">
+    Scope is locked. There is <strong>no AI feature inside the product</strong>. AI is only a development tool used to build the app. Anything not listed as In-Scope must not be built in v1.
+  </div>
+</section>
+
+<h2>1. What we are building</h2>
+<p>TaskFlow is a straightforward to-do application with real accounts. A user signs up with their email, logs in, and manages their own tasks. Nothing is shared with other users, and all data lives in our own MongoDB database — no external services.</p>
+<p>Alongside it, we ship a <strong>CRM admin panel on a separate URL</strong>. That is for us, not for customers. Admins log in with a fixed admin account and can view, create, edit, and delete users and their activity.</p>
+<div class="callout">
+  <strong>Two apps, one database:</strong><br />
+  <strong>TaskFlow App</strong> (<code>/</code>) — public sign-up, normal users, their own tasks.<br />
+  <strong>TaskFlow CRM</strong> (<code>/crm</code>) — admin login only, no registration, full visibility over users.
+</div>
+
+<h3>1.1 Important correction from v1.0</h3>
+<p>Version 1.0 described an AI agent that created and reorganised tasks. <strong>That is removed.</strong> Users create and manage everything manually. AI is used by us during development only, and is never part of the running product, the UI, or the database.</p>
+
+<h2>2. Document control</h2>
+<table>
+  <thead><tr><th>Field</th><th>Value</th></tr></thead>
+  <tbody>
+    <tr><td>Document ID</td><td>TF-PRD-MVP-002</td></tr>
+    <tr><td>Version</td><td>2.0 — 21 Aug 2026 (replaces v1.0 entirely)</td></tr>
+    <tr><td>Owner</td><td>Product (founder)</td></tr>
+    <tr><td>Stack lock</td><td>Next.js App Router + Tailwind + shadcn/ui · NestJS · MongoDB / Mongoose · JWT in HttpOnly cookie</td></tr>
+    <tr><td>Repo shape</td><td>Turborepo: <code>apps/web</code> (app + CRM), <code>apps/api</code> (NestJS), <code>packages/ui</code></td></tr>
+    <tr><td>Change policy</td><td>Scope changes require a version bump before code follows</td></tr>
+  </tbody>
+</table>
+
+<h2>3. Goals and non-goals</h2>
+<h3>3.1 Goals</h3>
+<table>
+  <thead><tr><th>ID</th><th>Goal</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td>G1</td><td>Real accounts with JWT</td><td>Each user's tasks are private; JWT is mandatory</td></tr>
+    <tr><td>G2</td><td>Full manual task management</td><td>Create, edit, delete, complete, priority, due date</td></tr>
+    <tr><td>G3</td><td>Reminders on tasks</td><td>User sets a reminder time and is notified in-app</td></tr>
+    <tr><td>G4</td><td>Organise: groups, sort, drag-and-drop</td><td>Makes it a real to-do tool, not a flat list</td></tr>
+    <tr><td>G5</td><td>CRM admin panel</td><td>We can manage users without touching the database by hand</td></tr>
+    <tr><td>G6</td><td>Seeded demo users</td><td>We can log in and test immediately</td></tr>
+  </tbody>
+</table>
+<h3>3.2 Non-goals (not in v1)</h3>
+<table>
+  <thead><tr><th>Out of scope</th><th>Reason</th></tr></thead>
+  <tbody>
+    <tr><td>Any AI feature in the product</td><td>Removed by decision; users work manually</td></tr>
+    <tr><td>Task dependency graph / analytics dashboards</td><td>Was v1.0 scope; too heavy for this POC</td></tr>
+    <tr><td>Teams, sharing, comments</td><td>Single-user app</td></tr>
+    <tr><td>Email / SMS / push notifications</td><td>Reminders are in-app only for MVP</td></tr>
+    <tr><td>Calendar sync, mobile apps, billing, SSO</td><td>Not the wedge</td></tr>
+    <tr><td>Admin self-registration</td><td>CRM has login only; admins are seeded</td></tr>
+  </tbody>
+</table>
+
+<h2>4. Users</h2>
+<table>
+  <thead><tr><th>Who</th><th>Where</th><th>How they get access</th><th>What they can do</th></tr></thead>
+  <tbody>
+    <tr><td>Normal user</td><td>TaskFlow App</td><td>Registers with their own email</td><td>Manage only their own tasks and groups</td></tr>
+    <tr><td>Demo user</td><td>TaskFlow App</td><td>Seeded by us</td><td>Same as normal user; used for testing</td></tr>
+    <tr><td>Admin</td><td>TaskFlow CRM</td><td>Seeded; no registration</td><td>Full visibility and control over all users</td></tr>
+  </tbody>
+</table>
+
+<h2>5. User journey (simple)</h2>
+<div class="wire">Register  →  Login  →  Dashboard (My Tasks)
+                                │
+        ┌───────────────┬───────┴────────┬──────────────┐
+        ▼               ▼                ▼              ▼
+   Add a task     Set priority /     Set reminder    Group / sort /
+                  due date                            drag to reorder
+        │
+        ▼
+   Complete or delete  →  Logout</div>
+<ol>
+  <li>User opens the app, clicks Register, enters name, email, password.</li>
+  <li>Registration completes and they are logged straight in (JWT cookie set).</li>
+  <li>They land on My Tasks and add their first task.</li>
+  <li>They can set priority, a due date, and optionally a reminder time.</li>
+  <li>They organise tasks into groups, sort them, and drag to reorder.</li>
+  <li>They complete tasks (checkbox), edit them, or delete them.</li>
+  <li>Logout clears the session.</li>
+</ol>
+
+<h2>6. Feature scope — TaskFlow App</h2>
+<table>
+  <thead><tr><th>Feature</th><th>Behaviour</th></tr></thead>
+  <tbody>
+    <tr><td>Register</td><td>Name, email, password. Email must be unique. Password hashed with bcrypt.</td></tr>
+    <tr><td>Login / Logout</td><td>Email + password. JWT issued in an HttpOnly cookie. Logout clears it.</td></tr>
+    <tr><td>Create task</td><td>Title (required), description, group, priority, due date, reminder.</td></tr>
+    <tr><td>Edit task</td><td>All fields editable inline or in a dialog.</td></tr>
+    <tr><td>Delete task</td><td>With a confirm step.</td></tr>
+    <tr><td>Complete / uncomplete</td><td>Checkbox toggle. Completed tasks move to the Completed filter.</td></tr>
+    <tr><td>Priority</td><td>Low · Medium · High, shown as a coloured badge.</td></tr>
+    <tr><td>Due date</td><td>Optional date. Overdue tasks are highlighted.</td></tr>
+    <tr><td>Reminder</td><td>Optional date + time. When it is due, the app shows a toast/banner while open. Can be edited or removed.</td></tr>
+    <tr><td>Groups</td><td>User-created lists in the sidebar (e.g. Work, Personal). A task belongs to one group or none.</td></tr>
+    <tr><td>Sort</td><td>By manual order, due date, priority, or created date.</td></tr>
+    <tr><td>Drag and drop</td><td>Reorder tasks within a list, and drag a task onto a group in the sidebar to move it.</td></tr>
+    <tr><td>Filters</td><td>All · Active · Completed. Plus Today and Overdue shortcuts.</td></tr>
+    <tr><td>Search</td><td>Simple title search within the user's tasks.</td></tr>
+    <tr><td>Profile</td><td>View name and email, change password, logout.</td></tr>
+  </tbody>
+</table>
+<p class="small">Reminder scope note: MVP reminders fire in the browser while the app is open (checked on load and on an interval). No email, push, or background worker in v1.</p>
+
+<h2>7. Screens and wireframes — TaskFlow App</h2>
+
+<h3>7.1 Login</h3>
+<div class="wire">┌──────────────────────────────────────────────────────────┐
+│                       ✦ TaskFlow                         │
+│                                                          │
+│            ┌────────────────────────────┐                │
+│            │  Welcome back              │                │
+│            │  Email    [             ]  │                │
+│            │  Password [             ]  │                │
+│            │  [        Log in        ]  │                │
+│            │  New here?  Create account │                │
+│            └────────────────────────────┘                │
+└──────────────────────────────────────────────────────────┘</div>
+
+<h3>7.2 Register</h3>
+<div class="wire">┌──────────────────────────────────────────────────────────┐
+│            ┌────────────────────────────┐                │
+│            │  Create your account       │                │
+│            │  Name     [             ]  │                │
+│            │  Email    [             ]  │                │
+│            │  Password [             ]  │                │
+│            │  Confirm  [             ]  │                │
+│            │  [     Create account   ]  │                │
+│            │  Already have one? Log in  │                │
+│            └────────────────────────────┘                │
+└──────────────────────────────────────────────────────────┘</div>
+<p>On success the user is logged in and redirected to My Tasks. Password minimum 8 characters.</p>
+
+<h3>7.3 My Tasks (main screen)</h3>
+<div class="wire">┌─────────────────┬──────────────────────────────────────────────────────┐
+│  ✦ TaskFlow     │  My Tasks                        Alex   [ Logout ]  │
+│                 ├──────────────────────────────────────────────────────┤
+│  All tasks      │  [ Search tasks…            ]      Sort: [ Manual ▾ ]│
+│  Today          │  [ All ] [ Active ] [ Completed ]                    │
+│  Overdue        │                                                      │
+│                 │  [ + Add a task…                                  ]  │
+│  GROUPS         │                                                      │
+│  • Work      12 │  ⠿ ○  Finish project proposal          HIGH          │
+│  • Personal   5 │       Due Aug 24  ·  ⏰ 9:00 AM        Edit  Delete  │
+│  • Study      3 │  ─────────────────────────────────────────────────── │
+│  + New group    │  ⠿ ○  Review pull requests           MEDIUM          │
+│                 │       Due Aug 25                      Edit  Delete   │
+│  ─────────────  │  ─────────────────────────────────────────────────── │
+│  Profile        │  ⠿ ✓  Send invoice                      LOW          │
+│                 │       Completed                       Edit  Delete   │
+└─────────────────┴──────────────────────────────────────────────────────┘</div>
+<p><code>⠿</code> is the drag handle. <code>⏰</code> shows a reminder is set. Adding a task is a single inline input at the top — the fastest possible capture. Clicking a task opens the detail dialog.</p>
+
+<h3>7.4 Task detail / edit dialog</h3>
+<div class="wire">┌────────────────────────────────────────────┐
+│  Edit task                            [×]  │
+│  Title       [ Finish project proposal  ]  │
+│  Description [                          ]  │
+│  Group       [ Work            ▾ ]         │
+│  Priority    ( Low )( Medium )( ●High )    │
+│  Due date    [ Aug 24, 2026     📅 ]       │
+│  Reminder    [ Aug 24, 09:00    ⏰ ]  ✕    │
+│                                            │
+│  [ Delete ]              [ Cancel ][ Save ]│
+└────────────────────────────────────────────┘</div>
+<p>The <code>✕</code> next to Reminder removes it. Everything here is optional except the title.</p>
+
+<h3>7.5 Profile</h3>
+<p>Shows name and email, a change-password form, and a Logout button. Nothing else in v1.</p>
+
+<h3>7.6 Empty states</h3>
+<ul>
+  <li>No tasks: “Nothing here yet. Add your first task above.”</li>
+  <li>No groups: “Groups help you separate work and personal tasks. Create one.”</li>
+  <li>Search with no result: “No tasks match that search.”</li>
+</ul>
+
+<h2>8. TaskFlow CRM (admin)</h2>
+<p>A separate area at <code>/crm</code>, with its own login and its own layout. It is not linked from the user app. There is <strong>no registration</strong> — admin accounts are seeded.</p>
+
+<h3>8.1 CRM login</h3>
+<div class="wire">┌──────────────────────────────────────────────────────────┐
+│                    TaskFlow CRM · Admin                  │
+│            ┌────────────────────────────┐                │
+│            │  Admin sign in             │                │
+│            │  Username [             ]  │                │
+│            │  Password [             ]  │                │
+│            │  [        Sign in       ]  │                │
+│            └────────────────────────────┘                │
+└──────────────────────────────────────────────────────────┘</div>
+<p>Admins log in with a username and password (not a public email sign-up). Separate JWT with an <code>admin</code> role; a normal user's token can never access CRM endpoints.</p>
+
+<h3>8.2 CRM users list</h3>
+<div class="wire">┌────────────┬─────────────────────────────────────────────────────────────┐
+│ CRM        │  Users                        [ + Create user ]  admin ▾    │
+│            ├─────────────────────────────────────────────────────────────┤
+│ Users      │  [ Search name or email…                                 ]  │
+│ Activity   │                                                             │
+│ Settings   │  Name        Email               Tasks  Status   Joined     │
+│            │  ─────────────────────────────────────────────────────────  │
+│            │  Alex Chen   alex@demo.test        12   Active   Aug 12  ⋯  │
+│            │  Sam Patel   sam@demo.test          5   Active   Aug 14  ⋯  │
+│            │  Riya Kumar  riya@demo.test         0   Disabled Aug 15  ⋯  │
+│            │                                                             │
+│            │  ⋯ menu:  View · Edit · Reset password · Disable · Delete   │
+└────────────┴─────────────────────────────────────────────────────────────┘</div>
+
+<h3>8.3 CRM user detail</h3>
+<div class="wire">┌────────────┬─────────────────────────────────────────────────────────────┐
+│ CRM        │  ← Users                                                    │
+│            │  Alex Chen · alex@demo.test                                 │
+│            │  Joined Aug 12, 2026   ·   Last login Aug 21, 09:40         │
+│            │  [ Edit ] [ Reset password ] [ Disable ] [ Delete user ]    │
+│            │                                                             │
+│            │  Tasks (12)                          Groups (3)             │
+│            │  ─────────────────────────────────────────────────────────  │
+│            │  ○ Finish project proposal  HIGH  Aug 24        [ Delete ]  │
+│            │  ✓ Send invoice             LOW   Aug 18        [ Delete ]  │
+│            │                                                             │
+│            │  Recent activity                                            │
+│            │  Aug 21 09:40  Logged in                                    │
+│            │  Aug 20 18:02  Completed “Send invoice”                     │
+│            │  Aug 20 17:55  Created task “Send invoice”                  │
+└────────────┴─────────────────────────────────────────────────────────────┘</div>
+
+<h3>8.4 CRM capabilities</h3>
+<table>
+  <thead><tr><th>Capability</th><th>Detail</th></tr></thead>
+  <tbody>
+    <tr><td>List users</td><td>Search, sort, task counts, status, joined date</td></tr>
+    <tr><td>Create user</td><td>Admin manually creates an account (name, email, password) for testing or support</td></tr>
+    <tr><td>Edit user</td><td>Change name, email, status</td></tr>
+    <tr><td>Reset password</td><td>Set a new password for a user</td></tr>
+    <tr><td>Disable / enable</td><td>A disabled user cannot log in; data is kept</td></tr>
+    <tr><td>Delete user</td><td>Permanently removes the user and their tasks, with a typed confirmation</td></tr>
+    <tr><td>View tasks</td><td>See any user's tasks and delete individual ones</td></tr>
+    <tr><td>Activity log</td><td>Login, register, task created/completed/deleted events</td></tr>
+  </tbody>
+</table>
+<p>Admin has full visibility and full privileges. Every destructive action is confirmed and written to the activity log.</p>
+
+<h2>9. Seeded accounts (for testing)</h2>
+<p>A seed script populates the database on first run so we can log in immediately. These are development credentials only and must be changed or removed before any public deployment.</p>
+<table>
+  <thead><tr><th>Role</th><th>Login</th><th>Password</th><th>Seeded data</th></tr></thead>
+  <tbody>
+    <tr><td>Admin (CRM)</td><td>admin</td><td>Admin@12345</td><td>Full CRM access</td></tr>
+    <tr><td>Demo user 1</td><td>alex@demo.test</td><td>Demo@12345</td><td>~12 tasks across 3 groups, some overdue, one reminder</td></tr>
+    <tr><td>Demo user 2</td><td>sam@demo.test</td><td>Demo@12345</td><td>~5 tasks, one group</td></tr>
+    <tr><td>Demo user 3</td><td>riya@demo.test</td><td>Demo@12345</td><td>Empty account, to test empty states</td></tr>
+  </tbody>
+</table>
+<p>Anyone can still register with their own email — the seeded accounts are simply there so testing does not require sign-up first. All accounts live only in our MongoDB; nothing is sent anywhere else.</p>
+
+<h2>10. Data model (MongoDB)</h2>
+<h3>10.1 User</h3>
+<table>
+  <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td>name</td><td>string</td><td>required</td></tr>
+    <tr><td>email</td><td>string</td><td>required, unique, lowercase</td></tr>
+    <tr><td>password</td><td>string</td><td>bcrypt hash, never returned</td></tr>
+    <tr><td>status</td><td>enum</td><td>active | disabled</td></tr>
+    <tr><td>lastLoginAt</td><td>date</td><td>updated on login</td></tr>
+    <tr><td>createdAt / updatedAt</td><td>date</td><td>timestamps</td></tr>
+  </tbody>
+</table>
+<h3>10.2 Admin</h3>
+<table>
+  <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td>username</td><td>string</td><td>required, unique</td></tr>
+    <tr><td>password</td><td>string</td><td>bcrypt hash</td></tr>
+    <tr><td>role</td><td>string</td><td>admin</td></tr>
+  </tbody>
+</table>
+<h3>10.3 Group</h3>
+<table>
+  <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td>name</td><td>string</td><td>required</td></tr>
+    <tr><td>color</td><td>string</td><td>optional dot colour</td></tr>
+    <tr><td>order</td><td>number</td><td>sidebar position</td></tr>
+    <tr><td>userId</td><td>ObjectId</td><td>required, indexed</td></tr>
+  </tbody>
+</table>
+<h3>10.4 Task</h3>
+<table>
+  <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td>title</td><td>string</td><td>required</td></tr>
+    <tr><td>description</td><td>string</td><td>optional</td></tr>
+    <tr><td>completed</td><td>boolean</td><td>default false</td></tr>
+    <tr><td>priority</td><td>enum</td><td>low | medium | high (default medium)</td></tr>
+    <tr><td>dueDate</td><td>date</td><td>optional</td></tr>
+    <tr><td>reminderAt</td><td>date</td><td>optional; null when removed</td></tr>
+    <tr><td>reminderFiredAt</td><td>date</td><td>set once shown, so it does not repeat</td></tr>
+    <tr><td>groupId</td><td>ObjectId</td><td>optional, ref Group</td></tr>
+    <tr><td>order</td><td>number</td><td>manual drag-and-drop position</td></tr>
+    <tr><td>userId</td><td>ObjectId</td><td>required, indexed</td></tr>
+    <tr><td>completedAt</td><td>date</td><td>set when completed</td></tr>
+    <tr><td>createdAt / updatedAt</td><td>date</td><td>timestamps</td></tr>
+  </tbody>
+</table>
+<h3>10.5 ActivityLog</h3>
+<table>
+  <thead><tr><th>Field</th><th>Type</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td>userId</td><td>ObjectId</td><td>who it happened to</td></tr>
+    <tr><td>actor</td><td>string</td><td>user | admin</td></tr>
+    <tr><td>action</td><td>string</td><td>registered, logged_in, task_created, task_completed, task_deleted, user_deleted…</td></tr>
+    <tr><td>meta</td><td>object</td><td>e.g. task title</td></tr>
+    <tr><td>createdAt</td><td>date</td><td>indexed</td></tr>
+  </tbody>
+</table>
+<p>Indexes: unique <code>email</code> on User, unique <code>username</code> on Admin, Task <code>{ userId, order }</code>, <code>{ userId, completed }</code>, <code>{ userId, dueDate }</code>, <code>{ userId, reminderAt }</code>.</p>
+<p><strong>Tenancy rule:</strong> every task and group query filters by <code>userId</code> taken from the JWT. The client never sends a trusted user id. Only admin endpoints may query across users.</p>
+
+<h2>11. API</h2>
+<table>
+  <thead><tr><th>Method</th><th>Endpoint</th><th>Purpose</th></tr></thead>
+  <tbody>
+    <tr><td>POST</td><td>/api/auth/register</td><td>Create account, set JWT cookie</td></tr>
+    <tr><td>POST</td><td>/api/auth/login</td><td>Log in, set JWT cookie</td></tr>
+    <tr><td>POST</td><td>/api/auth/logout</td><td>Clear cookie</td></tr>
+    <tr><td>GET</td><td>/api/auth/me</td><td>Current user</td></tr>
+    <tr><td>GET / POST</td><td>/api/tasks</td><td>List (filter, sort, search) / create</td></tr>
+    <tr><td>PATCH / DELETE</td><td>/api/tasks/:id</td><td>Update (incl. complete, reminder) / delete</td></tr>
+    <tr><td>PATCH</td><td>/api/tasks/reorder</td><td>Persist drag-and-drop order</td></tr>
+    <tr><td>GET / POST</td><td>/api/groups</td><td>List / create group</td></tr>
+    <tr><td>PATCH / DELETE</td><td>/api/groups/:id</td><td>Rename / delete (tasks become ungrouped)</td></tr>
+    <tr><td>POST</td><td>/api/admin/login</td><td>Admin sign in (separate token, role admin)</td></tr>
+    <tr><td>GET / POST</td><td>/api/admin/users</td><td>List users / create user</td></tr>
+    <tr><td>GET / PATCH / DELETE</td><td>/api/admin/users/:id</td><td>Detail / edit or disable / delete</td></tr>
+    <tr><td>POST</td><td>/api/admin/users/:id/password</td><td>Reset a user's password</td></tr>
+    <tr><td>GET</td><td>/api/admin/activity</td><td>Activity log</td></tr>
+  </tbody>
+</table>
+
+<h2>12. Architecture</h2>
+<div class="wire">        ┌────────────────────────┐      ┌────────────────────────┐
+        │  TaskFlow App  (/)     │      │  TaskFlow CRM  (/crm)  │
+        │  Next.js + shadcn      │      │  Next.js + shadcn      │
+        └───────────┬────────────┘      └───────────┬────────────┘
+                    └───────────────┬───────────────┘
+                                    ▼
+                     ┌──────────────────────────────┐
+                     │  NestJS API                  │
+                     │  AuthGuard (user) ·          │
+                     │  AdminGuard (role: admin)    │
+                     └──────────────┬───────────────┘
+                                    ▼
+                     ┌──────────────────────────────┐
+                     │  MongoDB                     │
+                     │  User · Admin · Group ·      │
+                     │  Task · ActivityLog          │
+                     └──────────────────────────────┘</div>
+<table>
+  <thead><tr><th>Layer</th><th>Choice</th><th>Reason</th></tr></thead>
+  <tbody>
+    <tr><td>Monorepo</td><td>Turborepo + pnpm</td><td>One repo for web and api</td></tr>
+    <tr><td>Frontend</td><td>Next.js App Router</td><td>Route groups keep app and CRM layouts separate</td></tr>
+    <tr><td>UI</td><td>Tailwind + shadcn/ui</td><td>Clean, consistent, fast to build</td></tr>
+    <tr><td>Drag and drop</td><td>dnd-kit</td><td>Accessible, works well with lists</td></tr>
+    <tr><td>Backend</td><td>NestJS</td><td>Modules and guards keep user vs admin access clean</td></tr>
+    <tr><td>Database</td><td>MongoDB + Mongoose</td><td>Simple documents, everything in our own DB</td></tr>
+    <tr><td>Auth</td><td>JWT in HttpOnly cookie + bcrypt</td><td>Mandatory JWT, token never exposed to JavaScript</td></tr>
+  </tbody>
+</table>
+<p>Nest modules: <code>AuthModule</code>, <code>UsersModule</code>, <code>TasksModule</code>, <code>GroupsModule</code>, <code>AdminModule</code>, <code>ActivityModule</code>, <code>SeedModule</code>.</p>
+
+<h2>13. Security</h2>
+<table>
+  <thead><tr><th>Control</th><th>Implementation</th></tr></thead>
+  <tbody>
+    <tr><td>Passwords</td><td>bcrypt, cost 10–12, never returned by the API</td></tr>
+    <tr><td>Session</td><td>JWT in HttpOnly, SameSite=Lax cookie; Secure in production</td></tr>
+    <tr><td>Roles</td><td>Separate user and admin tokens; AdminGuard on all <code>/api/admin/*</code></td></tr>
+    <tr><td>Tenancy</td><td>Every user query scoped by <code>userId</code> from the token</td></tr>
+    <tr><td>Login errors</td><td>Generic “Invalid credentials” — no account enumeration</td></tr>
+    <tr><td>Validation</td><td>class-validator DTOs with a global ValidationPipe</td></tr>
+    <tr><td>Rate limiting</td><td>On login and register endpoints</td></tr>
+    <tr><td>Secrets</td><td><code>MONGO_URI</code>, <code>JWT_SECRET</code>, <code>ADMIN_SEED_PASSWORD</code> in env, never committed</td></tr>
+    <tr><td>Disabled users</td><td>Blocked at login and rejected by the guard</td></tr>
+  </tbody>
+</table>
+
+<h2>14. Look and feel</h2>
+<table>
+  <thead><tr><th>Aspect</th><th>Decision</th></tr></thead>
+  <tbody>
+    <tr><td>Style</td><td>Clean and light, neutral slate palette, one accent colour</td></tr>
+    <tr><td>Priority colours</td><td>High = red badge, Medium = neutral badge, Low = outline badge</td></tr>
+    <tr><td>Density</td><td>Comfortable list rows, clear tap targets, keyboard friendly</td></tr>
+    <tr><td>Feedback</td><td>Optimistic updates on complete and reorder, toasts for save/delete, skeletons while loading</td></tr>
+    <tr><td>Motion</td><td>Short 150–200ms transitions; drag feels responsive, nothing decorative</td></tr>
+    <tr><td>CRM</td><td>Same components, denser table layout, clearly labelled as admin</td></tr>
+    <tr><td>Responsive</td><td>Sidebar collapses to a drawer on mobile</td></tr>
+  </tbody>
+</table>
+<p>Components used: Button, Input, Textarea, Card, Badge, Checkbox, Tabs, Select, Dialog, Dropdown Menu, Sheet, Table, Calendar, Skeleton, Sonner (toasts), Sidebar.</p>
+
+<h2>15. Build plan</h2>
+<table>
+  <thead><tr><th>Phase</th><th>Deliverable</th><th>Done when</th></tr></thead>
+  <tbody>
+    <tr><td>0 · Setup</td><td>Turborepo, Next + shadcn, NestJS, MongoDB connection, env files</td><td><code>pnpm dev</code> runs web and api together</td></tr>
+    <tr><td>1 · Auth</td><td>Register, login, logout, me, JWT cookie, route protection</td><td>Two users log in separately and stay logged in after refresh</td></tr>
+    <tr><td>2 · Tasks</td><td>CRUD, complete, priority, due date, filters, search</td><td>A user can run a full task lifecycle</td></tr>
+    <tr><td>3 · Organise</td><td>Groups, sort options, drag-and-drop ordering</td><td>Order and group changes survive a refresh</td></tr>
+    <tr><td>4 · Reminders</td><td>Reminder field, in-app notification, edit/remove</td><td>A due reminder appears once and does not repeat</td></tr>
+    <tr><td>5 · CRM</td><td>Admin login, users list, detail, create/edit/disable/delete, activity log</td><td>Admin manages a user end to end</td></tr>
+    <tr><td>6 · Seed &amp; polish</td><td>Seed script, empty states, errors, README</td><td>Definition of Done is fully green</td></tr>
+  </tbody>
+</table>
+
+<h2>16. Definition of Done</h2>
+<ol>
+  <li>A visitor can register with their own email and is logged in immediately.</li>
+  <li>Login, logout, and session-after-refresh all work using a JWT cookie.</li>
+  <li>Two different users never see each other's tasks or groups.</li>
+  <li>Tasks support create, edit, delete, complete/uncomplete, priority, and due date.</li>
+  <li>Reminders can be set, edited, removed, and fire once in the app.</li>
+  <li>Groups can be created and renamed; tasks can be moved between them.</li>
+  <li>Tasks can be sorted and reordered by drag and drop, and the order persists.</li>
+  <li>Filters (All, Active, Completed, Today, Overdue) and search work.</li>
+  <li>CRM at <code>/crm</code> has admin-only login with no registration.</li>
+  <li>CRM can list, create, edit, disable, and delete users, and view their tasks and activity.</li>
+  <li>Seed script creates one admin and three demo users with sample data.</li>
+  <li>README documents environment variables, how to run, and the demo credentials.</li>
+  <li>No AI feature exists anywhere in the running product.</li>
+</ol>
+
+<h2>17. Open points</h2>
+<table>
+  <thead><tr><th>Question</th><th>Default if undecided</th></tr></thead>
+  <tbody>
+    <tr><td>Should deleting a group delete its tasks?</td><td>No — tasks become ungrouped</td></tr>
+    <tr><td>Do reminders need to work when the app is closed?</td><td>No in v1; revisit with a worker or web push later</td></tr>
+    <tr><td>Should users be able to delete their own account?</td><td>Not in v1; admin can delete from CRM</td></tr>
+    <tr><td>More than one admin?</td><td>Seed one; the schema supports more</td></tr>
+  </tbody>
+</table>
+
+<p class="muted" style="margin-top:24px;">End of document — TF-PRD-MVP-002 v2.0 · TaskFlow · 21 August 2026</p>
+</body>
+</html>
