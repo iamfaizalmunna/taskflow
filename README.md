@@ -8,6 +8,14 @@ A simple task manager with JWT cookie auth, MongoDB, and a separate admin CRM.
 
 This is the first MVP. Users register, log in, and manage their own tasks. Admins use a different login for CRM.
 
+### CRM
+
+Admin sign-in, then user management. Login: `admin` / `Admin@12345`.
+
+![CRM login](docs/screenshots/09-crm-login.png)
+
+![CRM users](docs/screenshots/10-crm-users.png)
+
 ---
 
 ## Run locally
@@ -184,7 +192,7 @@ This is the starting MVP. Later work:
 - Stronger unit + API integration tests
 - Playwright end-to-end flows
 - GitHub Actions CI
-- Better mobile table layout in CRM
+- Stronger CRM analytics (activity charts, filters)
 - Optional email reminders
 - Deploy the web app on Vercel and the API on a small Node host, with MongoDB Atlas
 

@@ -27,13 +27,13 @@ export default function CrmUserPage() {
   }
   return (
     <CrmShell>
-      <main className="mx-auto max-w-7xl p-5 sm:p-8">
+      <main className="mx-auto max-w-7xl px-4 py-6 sm:p-8">
         <Link href="/crm" className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-indigo-600"><ArrowLeft size={17} />Back to users</Link>
         {!user ? <div className="mt-8 skeleton h-40 rounded-2xl" /> : <>
           <section className="mt-6 flex flex-col gap-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:flex-row sm:items-center">
             <span className="grid size-16 place-items-center rounded-2xl bg-indigo-100 text-2xl font-bold text-indigo-700">{user.name?.charAt(0).toUpperCase() || <UserRound />}</span>
             <div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-3"><h1 className="truncate text-2xl font-bold">{user.name}</h1><Badge tone={user.isActive === false ? "red" : "green"}>{user.isActive === false ? "Disabled" : "Active"}</Badge></div><p className="mt-2 flex items-center gap-2 text-sm text-slate-500"><Mail size={15} />{user.email}</p></div>
-            <Button variant="secondary" onClick={() => setResetOpen(true)}><KeyRound size={17} />Reset password</Button>
+            <Button variant="secondary" className="w-full sm:w-auto" onClick={() => setResetOpen(true)}><KeyRound size={17} />Reset password</Button>
           </section>
           <div className="mt-6 grid gap-6 lg:grid-cols-[2fr_1fr]">
             <div className="space-y-6">
@@ -48,7 +48,13 @@ export default function CrmUserPage() {
         </>}
       </main>
       <Dialog open={resetOpen} onClose={() => setResetOpen(false)} title="Reset password" description="Set a temporary password for this user.">
-        <form onSubmit={reset} className="space-y-4"><label className="block text-sm font-semibold text-slate-700">New password<Input name="password" type="password" minLength={8} required className="mt-2" /></label><div className="flex justify-end gap-3"><Button type="button" variant="secondary" onClick={() => setResetOpen(false)}>Cancel</Button><Button>Reset password</Button></div></form>
+        <form onSubmit={reset} className="space-y-4">
+          <label className="block text-sm font-semibold text-slate-700">New password<Input name="password" type="password" minLength={8} required className="mt-2" /></label>
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <Button type="button" variant="secondary" className="w-full sm:w-auto" onClick={() => setResetOpen(false)}>Cancel</Button>
+            <Button className="w-full sm:w-auto">Reset password</Button>
+          </div>
+        </form>
       </Dialog>
     </CrmShell>
   );
