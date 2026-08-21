@@ -61,11 +61,9 @@ cp apps/api/.env.example apps/api/.env
 cp apps/web/.env.example apps/web/.env.local
 ```
 
-MongoDB — pick one:
+Start MongoDB:
 
 ```bash
-docker compose up -d mongo
-# or, without Docker:
 pnpm --filter @taskflow/api mongo:local
 ```
 
